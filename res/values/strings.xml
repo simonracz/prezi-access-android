@@ -3,5 +3,9 @@
 
     <string name="app_name">Prezi-Access</string>
     <string name="title_prezi_detail">PEZ XML</string>
+    <string name="email">Email:</string>
+    <string name="password">Password:</string>
+    <string name="email_hint">example@gmail.com</string>
+    <string name="password_hint">***</string>
 
 </resources>
