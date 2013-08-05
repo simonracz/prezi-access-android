@@ -7,10 +7,10 @@ import java.io.PrintWriter;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.HttpCookie;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -36,6 +36,8 @@ public class LoginActivity extends Activity {
 	public static final String PREFS_NAME = "PrefsFile";
 	public static final String P_EMAIL = "email";
 	public static final String P_SESSIONID = "sessionid";
+	
+	public static CookieManager cookieManager;
 	
 	/**
 	 * Keep track of the login task to ensure we can cancel it if requested.
@@ -212,10 +214,10 @@ public class LoginActivity extends Activity {
 			try {
 				URL url = new URL("https://prezi.com/api/desktop/login/");
 
-				CookieManager cookieManager = new CookieManager();
+				cookieManager = new CookieManager();
 				CookieHandler.setDefault(cookieManager);
 				HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
-				urlConnection.setDoOutput(true);
+				urlConnection.setDoOutput(true);				
 				String urlParams = "username=" + URLEncoder.encode(mEmail,"UTF-8") + "&password=" + URLEncoder.encode(mPassword,"UTF-8");
 				
 				urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
@@ -241,6 +243,8 @@ public class LoginActivity extends Activity {
 						Log.d("return", cookie.getValue());
 					}					
 				}
+				
+				test();
 				
 				br.close();
 				urlConnection.disconnect();
@@ -282,6 +286,37 @@ public class LoginActivity extends Activity {
 		protected void onCancelled() {
 			mAuthTask = null;
 			showProgress(false);
+		}
+	}
+
+	public void test() {
+		try {
+			URL url = new URL("http://prezi.com/auth/refresh/?next=" + URLEncoder.encode("http://prezi.com/api/desktop/license/json/", "UTF-8"));
+						
+			HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();			
+			
+			Log.d("return", String.format("response code %d", urlConnection.getResponseCode()));
+			
+			if (urlConnection.getResponseCode() == 302) {
+				String loc = urlConnection.getHeaderField("Location");
+				Log.d("return", loc);
+			}
+			
+			BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+			   
+			String input;
+			while ((input = br.readLine()) != null) {
+				Log.d("return", input);
+			}
+			
+			br.close();
+			urlConnection.disconnect();
+							
+		} catch (MalformedURLException e) {
+			
+			
+		} catch (IOException e) {
+			
 		}
 	}
 }
