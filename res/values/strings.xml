@@ -7,5 +7,6 @@
     <string name="password">Password:</string>
     <string name="email_hint">example@gmail.com</string>
     <string name="password_hint">***</string>
+    <string name="action_logout">Log out</string>
 
 </resources>

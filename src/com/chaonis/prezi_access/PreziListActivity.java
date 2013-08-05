@@ -1,8 +1,11 @@
 package com.chaonis.prezi_access;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 
 /**
  * An activity representing a list of Prezis. This activity has different
@@ -49,6 +52,38 @@ public class PreziListActivity extends FragmentActivity implements
 		// TODO: If exposing deep links into your app, handle intents here.
 	}
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		getMenuInflater().inflate(R.menu.menu, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+        case R.id.action_logout:
+            logout();
+            return true;
+        default:
+            return super.onOptionsItemSelected(item);
+		}
+	}
+	
+	private void logout() {
+		SharedPreferences settings = getSharedPreferences(LoginActivity.PREFS_NAME, 0);
+	    SharedPreferences.Editor editor = settings.edit();
+	    editor.clear();
+	    editor.commit();
+	    			    
+		//go to login activity
+	    
+	    Intent intent = new Intent(this, LoginActivity.class);
+	    startActivity(intent);
+	    
+		finish();
+	}
+	
 	/**
 	 * Callback method from {@link PreziListFragment.Callbacks} indicating that
 	 * the item with the given ID was selected.

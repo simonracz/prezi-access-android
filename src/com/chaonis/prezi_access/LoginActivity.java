@@ -4,30 +4,24 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.KeyEvent;
-import android.view.Menu;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 
 public class LoginActivity extends Activity {
-	/**
-	 * A dummy authentication store containing known user names and passwords.
-	 * TODO: remove after connecting to a real authentication system.
-	 */
-	private static final String[] DUMMY_CREDENTIALS = new String[] {
-			"foo@example.com:hello", "bar@example.com:world" };
 
-	/**
-	 * The default email to populate the email field with.
-	 */
-	public static final String EXTRA_EMAIL = "com.example.android.authenticatordemo.extra.EMAIL";
-
+	public static final String PREFS_NAME = "PrefsFile";
+	public static final String P_EMAIL = "email";
+	public static final String P_SESSIONID = "sessionid";
+	
 	/**
 	 * Keep track of the login task to ensure we can cancel it if requested.
 	 */
@@ -36,6 +30,7 @@ public class LoginActivity extends Activity {
 	// Values for email and password at the time of the login attempt.
 	private String mEmail;
 	private String mPassword;
+	private String mSessionId;
 
 	// UI references.
 	private EditText mEmailView;
@@ -51,10 +46,15 @@ public class LoginActivity extends Activity {
 		setContentView(R.layout.activity_login);
 
 		// Set up the login form.
-		mEmail = getIntent().getStringExtra(EXTRA_EMAIL);
+		SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+	    //an silent = settings.getBoolean("silentMode", false);
+		
+		mEmail = settings.getString(P_EMAIL, "");  
 		mEmailView = (EditText) findViewById(R.id.email);
 		mEmailView.setText(mEmail);
 
+		//check sessionId
+		
 		mPasswordView = (EditText) findViewById(R.id.password);
 		mPasswordView
 				.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -82,15 +82,8 @@ public class LoginActivity extends Activity {
 				});
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		super.onCreateOptionsMenu(menu);
-		getMenuInflater().inflate(R.menu.login, menu);
-		return true;
-	}
-
 	/**
-	 * Attempts to sign in or register the account specified by the login form.
+	 * Attempts to sign in to the account specified by the login form.
 	 * If there are form errors (invalid email, missing fields, etc.), the
 	 * errors are presented and no actual login attempt is made.
 	 */
@@ -146,6 +139,13 @@ public class LoginActivity extends Activity {
 		}
 	}
 
+	private void goToList() {
+		//go to list activity
+	    Intent intent = new Intent(this , PreziListActivity.class);
+	    startActivity(intent);
+		finish();
+	}
+	
 	/**
 	 * Shows the progress UI and hides the login form.
 	 */
@@ -203,15 +203,7 @@ public class LoginActivity extends Activity {
 				return false;
 			}
 
-			for (String credential : DUMMY_CREDENTIALS) {
-				String[] pieces = credential.split(":");
-				if (pieces[0].equals(mEmail)) {
-					// Account exists, return true if the password matches.
-					return pieces[1].equals(mPassword);
-				}
-			}
-
-			// TODO: register the new account here.
+			// return true if successful
 			return true;
 		}
 
@@ -221,7 +213,16 @@ public class LoginActivity extends Activity {
 			showProgress(false);
 
 			if (success) {
-				finish();
+				SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+			    SharedPreferences.Editor editor = settings.edit();
+			    editor.putString(P_EMAIL, mEmail);
+			    
+			    //save sessionid
+			    //editor.putString(P_SESSIONID, mSessionId);
+			    
+			    // Commit the edits!
+			    editor.commit();			    			    
+				goToList();
 			} else {
 				mPasswordView
 						.setError(getString(R.string.error_incorrect_password));
