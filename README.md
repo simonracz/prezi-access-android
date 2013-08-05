@@ -1,6 +1,8 @@
 Prezi Access
 ============
 
-Simple app to connect a Prezi.com account.
+A simple app to connect to a Prezi.com account.
+
 Lists prezis.
-Opens PEZ XML files.
+
+Shows PEZ XML files.
