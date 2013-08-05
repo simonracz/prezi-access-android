@@ -1,5 +1,19 @@
 package com.chaonis.prezi_access;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.HttpCookie;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.List;
+
+import javax.net.ssl.HttpsURLConnection;
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
@@ -10,6 +24,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -194,12 +209,45 @@ public class LoginActivity extends Activity {
 	public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 		@Override
 		protected Boolean doInBackground(Void... params) {
-			// TODO: attempt authentication against a network service.
-
 			try {
-				// Simulate network access.
-				Thread.sleep(2000);
-			} catch (InterruptedException e) {
+				URL url = new URL("https://prezi.com/api/desktop/login/");
+
+				CookieManager cookieManager = new CookieManager();
+				CookieHandler.setDefault(cookieManager);
+				HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
+				urlConnection.setDoOutput(true);
+				String urlParams = "username=" + URLEncoder.encode(mEmail,"UTF-8") + "&password=" + URLEncoder.encode(mPassword,"UTF-8");
+				
+				urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+				
+				PrintWriter out = new PrintWriter(urlConnection.getOutputStream());
+		        out.print(urlParams);		        
+				out.close();
+				
+				BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+				
+				Log.d("return", String.format("response code %d", urlConnection.getResponseCode()));
+				Log.d("return", String.format("cipher suite %s", urlConnection.getCipherSuite()));
+				   
+				String input;
+				
+				while ((input = br.readLine()) != null) {
+					Log.d("return", input);
+				}
+								
+				for (HttpCookie cookie : cookieManager.getCookieStore().getCookies()) {
+					if (cookie.getName().compareTo("sessionid") == 0) {
+						mSessionId = cookie.getValue();
+						Log.d("return", cookie.getValue());
+					}					
+				}
+				
+				br.close();
+				urlConnection.disconnect();
+				
+			} catch (MalformedURLException e) {
+				return false;
+			} catch (IOException e) {
 				return false;
 			}
 
