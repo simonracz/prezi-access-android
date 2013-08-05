@@ -1,18 +1,6 @@
 package com.chaonis.prezi_access;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.CookieHandler;
 import java.net.CookieManager;
-import java.net.HttpCookie;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLEncoder;
-
-import javax.net.ssl.HttpsURLConnection;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -24,7 +12,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -211,52 +198,7 @@ public class LoginActivity extends Activity {
 	public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 		@Override
 		protected Boolean doInBackground(Void... params) {
-			try {
-				URL url = new URL("https://prezi.com/api/desktop/login/");
-
-				cookieManager = new CookieManager();
-				CookieHandler.setDefault(cookieManager);
-				HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
-				urlConnection.setDoOutput(true);				
-				String urlParams = "username=" + URLEncoder.encode(mEmail,"UTF-8") + "&password=" + URLEncoder.encode(mPassword,"UTF-8");
-				
-				urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-				
-				PrintWriter out = new PrintWriter(urlConnection.getOutputStream());
-		        out.print(urlParams);		        
-				out.close();
-				
-				BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-				
-				Log.d("return", String.format("response code %d", urlConnection.getResponseCode()));
-				Log.d("return", String.format("cipher suite %s", urlConnection.getCipherSuite()));
-				   
-				String input;
-				
-				while ((input = br.readLine()) != null) {
-					Log.d("return", input);
-				}
-								
-				for (HttpCookie cookie : cookieManager.getCookieStore().getCookies()) {
-					if (cookie.getName().compareTo("sessionid") == 0) {
-						mSessionId = cookie.getValue();
-						Log.d("return", cookie.getValue());
-					}					
-				}
-				
-				test();
-				
-				br.close();
-				urlConnection.disconnect();
-				
-			} catch (MalformedURLException e) {
-				return false;
-			} catch (IOException e) {
-				return false;
-			}
-
-			// return true if successful
-			return true;
+			return PreziAPI.login(mEmail, mPassword);
 		}
 
 		@Override
@@ -289,34 +231,4 @@ public class LoginActivity extends Activity {
 		}
 	}
 
-	public void test() {
-		try {
-			URL url = new URL("http://prezi.com/auth/refresh/?next=" + URLEncoder.encode("http://prezi.com/api/desktop/license/json/", "UTF-8"));
-						
-			HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();			
-			
-			Log.d("return", String.format("response code %d", urlConnection.getResponseCode()));
-			
-			if (urlConnection.getResponseCode() == 302) {
-				String loc = urlConnection.getHeaderField("Location");
-				Log.d("return", loc);
-			}
-			
-			BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-			   
-			String input;
-			while ((input = br.readLine()) != null) {
-				Log.d("return", input);
-			}
-			
-			br.close();
-			urlConnection.disconnect();
-							
-		} catch (MalformedURLException e) {
-			
-			
-		} catch (IOException e) {
-			
-		}
-	}
 }
