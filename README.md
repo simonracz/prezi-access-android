@@ -1,7 +1,7 @@
 Prezi Access
 ============
 
-A simple app to connect to a Prezi.com account.
+A simple app to connect to a prezi.com account.
 
 Lists prezis.
 
