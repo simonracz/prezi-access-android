@@ -34,8 +34,7 @@ public class LoginActivity extends Activity {
 	// Values for email and password at the time of the login attempt.
 	private String mEmail;
 	private String mPassword;
-	private String mSessionId;
-
+	
 	// UI references.
 	private EditText mEmailView;
 	private EditText mPasswordView;
@@ -198,7 +197,10 @@ public class LoginActivity extends Activity {
 	public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 		@Override
 		protected Boolean doInBackground(Void... params) {
-			return PreziAPI.login(mEmail, mPassword);
+			boolean b = PreziAPI.login(mEmail, mPassword); 
+			PreziAPI.preziList();
+			PreziAPI.requestPEZ("iie0vryr1zg7");
+			return b;
 		}
 
 		@Override
