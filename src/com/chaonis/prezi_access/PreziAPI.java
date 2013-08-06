@@ -11,6 +11,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -112,5 +114,12 @@ public class PreziAPI {
 		return resp;
 	}
 	
+	public static List<PreziItem> preziList() {
+		List<PreziItem> list = new ArrayList<PreziItem>();
+		
+		
+		
+		return list;		
+	}
 
 }
