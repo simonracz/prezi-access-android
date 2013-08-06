@@ -205,9 +205,11 @@ public class LoginActivity extends Activity {
 	public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 		@Override
 		protected Boolean doInBackground(Void... params) {
-			boolean b = PreziAPI.login(mEmail, mPassword); 
-			ArrayList<PreziItem> l = PreziAPI.preziList();
-			for (PreziItem item : l) {
+			boolean b = PreziAPI.login(mEmail, mPassword);
+			DummyContent.ITEM_MAP.clear();
+			DummyContent.ITEMS.clear();			
+			ArrayList<PreziItem> list = PreziAPI.preziList();
+			for (PreziItem item : list) {
 				DummyContent.addItem(item);
 			}
 			
