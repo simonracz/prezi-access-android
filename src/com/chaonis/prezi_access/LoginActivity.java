@@ -225,7 +225,7 @@ public class LoginActivity extends Activity {
 			    SharedPreferences.Editor editor = settings.edit();
 			    editor.putString(P_EMAIL, mEmail);
 			    
-			    //save sessionid
+			    //save sessionid and whole cookie?
 			    //editor.putString(P_SESSIONID, mSessionId);
 			    
 			    // Commit the edits!

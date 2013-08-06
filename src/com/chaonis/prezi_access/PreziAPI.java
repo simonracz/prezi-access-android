@@ -33,7 +33,7 @@ public class PreziAPI {
 	public static String sessionId;
 	
 	public static boolean login(String username, String password) {
-		int success = 0;
+		boolean success = false;
 		try {
 			URL url = new URL("https://prezi.com/api/desktop/login/");
 
@@ -49,29 +49,30 @@ public class PreziAPI {
 	        out.print(urlParams);		        
 			out.close();
 			
-			BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-			
 			Log.d("return", String.format("response code %d", urlConnection.getResponseCode()));
 			Log.d("return", String.format("cipher suite %s", urlConnection.getCipherSuite()));
 			   
+			BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+
 			String input;
-			
+						
 			while ((input = br.readLine()) != null) {
 				//Yeah this is ugly
 				if (input.contains("<success>1</success>")) {
-					success = 1;
+					success = true;
 				}
 				Log.d("return", input);
 			}
+			
+			br.close();
 							
 			for (HttpCookie cookie : cookieManager.getCookieStore().getCookies()) {
 				if (cookie.getName().compareTo("sessionid") == 0) {
 					sessionId = cookie.getValue();
-					Log.d("return", cookie.getValue());
+					Log.d("return", "sessionid = " + cookie.getValue());
 				}					
 			}
 			
-			br.close();
 			urlConnection.disconnect();
 			
 		} catch (MalformedURLException e) {
@@ -80,48 +81,8 @@ public class PreziAPI {
 			return false;
 		}
 
-		if (success == 1) {
-			return true;
-		} else {
-			return false;
-		}		
+		return success;		
 	} //login
-	
-	public static String license() {
-		String resp = "";
-		try {
-			URL url = new URL("http://prezi.com/auth/refresh/?next=" + URLEncoder.encode("http://prezi.com/api/desktop/license/json/", "UTF-8"));
-						
-			HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();			
-			
-			Log.d("return", String.format("response code %d", urlConnection.getResponseCode()));
-			
-			if (urlConnection.getResponseCode() == 302) {
-				String loc = urlConnection.getHeaderField("Location");
-				Log.d("return", loc);
-			}
-			
-			BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-			   
-			String input;
-			StringBuilder sb = new StringBuilder();
-			while ((input = br.readLine()) != null) {
-				sb.append(input);
-				Log.d("return", input);
-			}
-			resp = sb.toString();
-			
-			br.close();
-			urlConnection.disconnect();
-							
-		} catch (MalformedURLException e) {
-			
-			
-		} catch (IOException e) {
-			
-		}
-		return resp;
-	}
 	
 	public static ArrayList<PreziItem> preziList() {
 		ArrayList<PreziItem> resp = new ArrayList<PreziItem>();
@@ -137,22 +98,59 @@ public class PreziAPI {
 				String loc = urlConnection.getHeaderField("Location");
 				Log.d("return", loc);
 			}
-			
-			BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-			   
-			String input;
-			StringBuilder sb = new StringBuilder();
-			while ((input = br.readLine()) != null) {
-				sb.append(input);
-				Log.d("return", input);
+		
+			int total_count = 0;
+
+			JsonReader reader = new JsonReader(new InputStreamReader(urlConnection.getInputStream()));
+			reader.beginObject();
+			while (reader.hasNext()) {
+				String name = reader.nextName();
+				if (name.equals("list")) {
+					reader.beginArray();
+					while (reader.hasNext()) {
+						reader.beginObject();
+						PreziItem item = new PreziItem();
+						while (reader.hasNext()) {							
+							String n = reader.nextName();
+							if (n.equals("thumb_url")) {
+								item.thumb_url = reader.nextString();
+							} else if (n.equals("preview_url")) {
+								item.preview_url = reader.nextString();
+							} else if (n.equals("title")) {
+								item.title = reader.nextString();
+							} else if (n.equals("oid")) {
+								item.oid = reader.nextString();
+							} else if (n.equals("id")) {
+								item.id = reader.nextInt();
+							} else if (n.equals("size")) {
+								item.size = reader.nextInt();
+							} else if (n.equals("landing_url")) {
+								item.landing_url = reader.nextString();
+							} else if (n.equals("owner_profile_url")) {
+								item.owner_profile_url = reader.nextString();
+							} else {
+								reader.skipValue();
+							}
+						}
+						resp.add(item);
+						reader.endObject();
+					}
+					reader.endArray();
+				} else if (name.equals("total_count")) {
+					total_count = reader.nextInt();
+				} else {
+					reader.skipValue();
+				}
 			}
+			reader.endObject();
 			
-			//parse input
-			//create PreziItem
-			//add to resp
+			Log.d("return", String.format("response code %d", urlConnection.getResponseCode()));
 			
-			br.close();
+			reader.close();
 			urlConnection.disconnect();
+			
+			Log.d("return", String.format("total_count : %d", total_count));
+			Log.d("return", String.format("list_count : %d", resp.size()));
 							
 		} catch (MalformedURLException e) {
 			
@@ -406,4 +404,41 @@ public class PreziAPI {
 		return pez;
 	}
 
+	
+	public static String license() {
+		String resp = "";
+		try {
+			URL url = new URL("http://prezi.com/auth/refresh/?next=" + URLEncoder.encode("http://prezi.com/api/desktop/license/json/", "UTF-8"));
+						
+			HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();			
+			
+			Log.d("return", String.format("response code %d", urlConnection.getResponseCode()));
+			
+			if (urlConnection.getResponseCode() == 302) {
+				String loc = urlConnection.getHeaderField("Location");
+				Log.d("return", loc);
+			}
+			
+			BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+			   
+			String input;
+			StringBuilder sb = new StringBuilder();
+			while ((input = br.readLine()) != null) {
+				sb.append(input);
+				Log.d("return", input);
+			}
+			resp = sb.toString();
+			
+			br.close();
+			urlConnection.disconnect();
+							
+		} catch (MalformedURLException e) {
+			
+			
+		} catch (IOException e) {
+			
+		}
+		return resp;
+	}
+	
 }
