@@ -24,7 +24,7 @@ public class PreziDetailFragment extends Fragment {
 	/**
 	 * The dummy content this fragment is presenting.
 	 */
-	private DummyContent.DummyItem mItem;
+	private PreziItem mItem;
 
 	/**
 	 * Mandatory empty constructor for the fragment manager to instantiate the
@@ -55,7 +55,7 @@ public class PreziDetailFragment extends Fragment {
 		// Show the dummy content as text in a TextView.
 		if (mItem != null) {
 			((TextView) rootView.findViewById(R.id.prezi_detail))
-					.setText(mItem.content);
+					.setText(mItem.oid);
 		}
 
 		return rootView;

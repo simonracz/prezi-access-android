@@ -10,5 +10,11 @@ public class PreziItem {
 	public int size;
 	public String landing_url;
 	public String owner_profile_url;
+	
+	public String dummyId;
 
+	@Override
+	public String toString() {
+		return title;
+	}
 }

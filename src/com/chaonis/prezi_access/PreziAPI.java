@@ -100,6 +100,7 @@ public class PreziAPI {
 			}
 		
 			int total_count = 0;
+			int dummyIdCount = 1;
 
 			JsonReader reader = new JsonReader(new InputStreamReader(urlConnection.getInputStream()));
 			reader.beginObject();
@@ -132,6 +133,8 @@ public class PreziAPI {
 								reader.skipValue();
 							}
 						}
+						item.dummyId = String.valueOf(dummyIdCount);
+						++dummyIdCount;
 						resp.add(item);
 						reader.endObject();
 					}

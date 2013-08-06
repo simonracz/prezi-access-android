@@ -1,6 +1,9 @@
 package com.chaonis.prezi_access;
 
 import java.net.CookieManager;
+import java.util.ArrayList;
+
+import com.chaonis.prezi_access.dummy.DummyContent;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -205,13 +208,19 @@ public class LoginActivity extends Activity {
 		@Override
 		protected Boolean doInBackground(Void... params) {
 			boolean b = PreziAPI.login(mEmail, mPassword); 
-			PreziAPI.preziList();
+			ArrayList<PreziItem> l = PreziAPI.preziList();
+			for (PreziItem item : l) {
+				DummyContent.addItem(item);
+			}
+			
+			/*
 			String pezUrl = PreziAPI.requestPEZ("dktacm3cf45z");
 			//String pezUrl = PreziAPI.requestPEZ("iie0vryr1zg7");
 			if (!pezUrl.isEmpty()) {
 				Log.d("return", pezUrl);
 				processPez(pezUrl);				
 			}
+			*/
 			return b;
 		}
 
