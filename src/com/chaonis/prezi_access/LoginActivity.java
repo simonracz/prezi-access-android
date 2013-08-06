@@ -12,6 +12,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -149,6 +150,12 @@ public class LoginActivity extends Activity {
 		finish();
 	}
 	
+	private String processPez(String pezUrl) {
+		String pezXML = PreziAPI.getContentsXML(pezUrl, this);
+		Log.d("return", pezXML.isEmpty()? "empty" : pezXML.substring(0, 150));
+		return pezXML;
+	}
+	
 	/**
 	 * Shows the progress UI and hides the login form.
 	 */
@@ -199,7 +206,12 @@ public class LoginActivity extends Activity {
 		protected Boolean doInBackground(Void... params) {
 			boolean b = PreziAPI.login(mEmail, mPassword); 
 			PreziAPI.preziList();
-			PreziAPI.requestPEZ("iie0vryr1zg7");
+			String pezUrl = PreziAPI.requestPEZ("dktacm3cf45z");
+			//String pezUrl = PreziAPI.requestPEZ("iie0vryr1zg7");
+			if (!pezUrl.isEmpty()) {
+				Log.d("return", pezUrl);
+				processPez(pezUrl);				
+			}
 			return b;
 		}
 
