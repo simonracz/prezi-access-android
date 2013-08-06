@@ -51,6 +51,10 @@ public class LoginActivity extends Activity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_login);
+		
+		if (PreziAPI.cacheDir == null) {
+			PreziAPI.cacheDir = this.getCacheDir();
+		}
 
 		// Set up the login form.
 		SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
@@ -151,12 +155,6 @@ public class LoginActivity extends Activity {
 	    Intent intent = new Intent(this , PreziListActivity.class);
 	    startActivity(intent);
 		finish();
-	}
-	
-	private String processPez(String pezUrl) {
-		String pezXML = PreziAPI.getContentsXML(pezUrl, this);
-		Log.d("return", pezXML.isEmpty()? "empty" : pezXML.substring(0, 150));
-		return pezXML;
 	}
 	
 	/**

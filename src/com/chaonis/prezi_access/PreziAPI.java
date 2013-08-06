@@ -31,6 +31,7 @@ public class PreziAPI {
 	
 	public static CookieManager cookieManager;
 	public static String sessionId;
+	public static File cacheDir;
 	
 	public static boolean login(String username, String password) {
 		boolean success = false;
@@ -350,7 +351,7 @@ public class PreziAPI {
 		return Pair.create(resp, success);
 	}
 
-	public static String getContentsXML(String pezUrl, Context context) {
+	public static String getContentsXML(String pezUrl) {
 		String pez = "";
 		
 		String httpUrl = pezUrl.replace("https://", "http://");
@@ -362,8 +363,7 @@ public class PreziAPI {
 			//Didn't work without downloading
 			//See for why at http://commons.apache.org/proper/commons-compress/zip.html
 			
-			File outputDir = context.getCacheDir(); // context being the Activity pointer
-			File outputFile = File.createTempFile("pez", "tmp", outputDir);			
+			File outputFile = File.createTempFile("pez", "tmp", cacheDir);			
 			
 			BufferedInputStream in = new BufferedInputStream(conn.getInputStream());
 			FileOutputStream fout = new FileOutputStream(outputFile);
